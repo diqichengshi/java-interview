@@ -1,0 +1,52 @@
+dict.h/dict 给出了这个字典的定义：
+/*
+* 每个字典使用两个哈希表，用于实现渐进式 rehash
+*/
+typedef struct dict {
+	// 特定于类型的处理函数
+	dictType *type;
+	// 类型处理函数的私有数据
+	void *privdata;
+	// 哈希表（2 个）
+	dictht ht[2];
+	// 记录 rehash 进度的标志，值为-1 表示 rehash 未进行
+	int rehashidx;
+	// 当前正在运作的安全迭代器数量
+	int iterators;
+} dict;
+
+字典所使用的哈希表实现由 dict.h/dictht 类型定义：
+/*
+* 哈希表
+*/
+typedef struct dictht {
+	// 哈希表节点指针数组（俗称桶，bucket）
+	dictEntry **table;
+	// 指针数组的大小
+	unsigned long size;
+	// 指针数组的长度掩码，用于计算索引值
+	unsigned long sizemask;
+	// 哈希表现有的节点数量
+	unsigned long used;
+} dictht;
+
+
+table 属性是一个数组，数组的每个元素都是一个指向 dictEntry 结构的指针。
+每个 dictEntry 都保存着一个键值对，以及一个指向另一个 dictEntry 结构的指针：
+/*
+* 哈希表节点
+*/
+typedef struct dictEntry {
+	void *key;// 键
+	union { 
+		void *val;
+		uint64_t u64;
+		int64_t s64;
+	} v; // 值
+	// 链往后继节点
+	struct dictEntry *next;
+} dictEntry;
+
+next 属性指向另一个 dictEntry 结构，多个 dictEntry 可以通过 next 指针串连成链表，从
+这里可以看出，dictht 使用链地址法来处理键碰撞：当多个不同的键拥有相同的哈希值时，哈
+希表用一个链表将这些键连接起来。

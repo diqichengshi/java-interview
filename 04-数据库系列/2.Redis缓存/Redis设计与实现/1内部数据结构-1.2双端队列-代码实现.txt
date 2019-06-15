@@ -1,0 +1,15 @@
+2.listNode 的代码定义                                         
+typedef struct listNode {
+    struct listNode *prev;
+    struct listNode *next;
+    void *value;
+} listNode;                                                                  
+list 的结构定义                                                 
+typedef struct list {
+    listNode *head;
+    listNode *tail;
+    void *(*dup)(void *ptr);
+    void (*free)(void *ptr);
+    int (*match)(void *ptr, void *key);
+    unsigned long len;
+} list;                                                       

@@ -1,0 +1,6 @@
+2.sds 的代码定义                                                 
+struct sdshdr {
+    int len;
+    int free;
+    char buf[];
+}     
